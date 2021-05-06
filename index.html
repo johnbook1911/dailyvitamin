@@ -1,54 +1,47 @@
 
-	<!DOCTYPE html>
-	<html>
-	<head>
-	  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-	  <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-	</head>
-	<body>
-	  
-	<button id="cartoonsBtn">Cartoons</button>
-	<button id="dramaBtn">Drama</button>
+<!DOCTYPE html>  
+<html>  
+	<head>  
+		<title>First jQuery Example</title>  
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">  
+		</script>  
+		<script type="text/javascript" language="javascript">  
+			$(document).ready(function() {  
+				const queryString = window.location.search;
+				const urlParams = new URLSearchParams(queryString);
+				const query = urlParams.get('query')
+				const ifugc = urlParams.get('ifugc')
 
-	<ul id="movieList"></ul>
+				if(/^\d+$/.test(query)) {
+					var url = "https://tw.iherb.com/pr/x/" + query
+				} else if((query.indexOf("-") > -1) && (query.length === __PNUM_LEN__)) {
+					var url = "https://tw.iherb.com/search?kw=" + query
+				} else {
+					return
+				}
 
-	<script>
-	var markup = "<li><b>${Name}</b> (${ReleaseYear})</li>";
+				$.ajax({
+					method: 'GET',
+					dataType: 'jsonp',
+					crossDomain: true,
+					url: url,
+					headers: {
+					  	"accept": "application/json",
+						"Access-Control-Allow-Origin":"*"
+					},
+					success: function(data){
+						$(".result").html(data);
+					}
+				})
 
-	/* Compile the markup as a named template */
-	$.template( "movieTemplate", markup );
 
-	function getMovies( genre, skip, top ) {
-	  $.ajax({
-		dataType: "jsonp",
-		url: "http://odata.netflix.com/Catalog/Genres('" + genre
-		+ "')/Titles?$format=json&$skip="
-		+ skip + "&$top=" + top,
-		jsonp: "$callback",
-		success: function( data ) {
-		  /* Get the movies array from the data */
-		  var movies = data.d;
-
-		  /* Remove current set of movie template items */
-		  $( "#movieList" ).empty();
-
-		  /* Render the template items for each movie
-		  and insert the template items into the "movieList" */
-		  $.tmpl( "movieTemplate", movies )
-		  .appendTo( "#movieList" );
-		}
-	  });
-	}
-
-	$( "#cartoonsBtn" ).click( function() {
-	  getMovies( "Cartoons", 0, 6 );
-	});
-
-	$( "#dramaBtn" ).click( function() {
-	  getMovies( "Drama", 0, 6 );
-	});
-
-	</script>
-
-	</body>
-	</html>
+			});  
+		</script>  
+	</head>  
+	<body> 
+		<div id="result"></div>
+		<p>The first paragraph is selected.</p>  
+		<p>The second paragraph is selected.</p>  
+		<p>The third paragraph is selected.</p>  
+	</body>  
+</html>  
